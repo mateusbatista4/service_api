@@ -8,4 +8,4 @@ class NotificationModel:
         self.creation_date = creation_date
         self.notification_category = notification_category
         self.displayed_times = 0
-        self.displayed_once = False
+        self.displayed_once = True
