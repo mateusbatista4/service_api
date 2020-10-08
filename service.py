@@ -113,8 +113,8 @@ class NotificationList(Resource):
 app = Flask(__name__)
 service = Api(app)
 
-service.add_resource(NotificationList, '/service/notifications')
-service.add_resource(Notification, '/service/notifications/<int:id>',endpoint='notification_endpoint')
+service.add_resource(NotificationList, '/service/notifications/')
+service.add_resource(Notification, '/service/notifications/<int:id>/',endpoint='notification_endpoint')
 
 
 if __name__ == '__main__':
