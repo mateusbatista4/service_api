@@ -1,9 +1,13 @@
 from flask import Flask
 from datetime import datetime
 from flask_restful import Resource, Api, fields, marshal_with, reqparse, abort
-from models import NotificationModel
-from http_status import HttpStatus
+
 from pytz import utc
+
+import models
+import http_status
+
+
 
 class NotificationManager():
 
@@ -46,7 +50,7 @@ class Notification(Resource):
     def abort_if_notification_not_found(self,id):
         if id not in notification_manager.notifications:
             abort(
-                HttpStatus.not_found_404.value,
+                http_status.HttpStatus.not_found_404.value,
                 message="not exist"
             )
     @marshal_with(notification_fields)
@@ -56,6 +60,7 @@ class Notification(Resource):
     def delet(self,id):
         self.abort_if_notification_not_found(id)
         notification_manager.delete_notifications(id)
+        from http_status import HttpStatus
         return '', HttpStatus.no_content_204.value
 
     @marshal_with(notification_fields)
@@ -80,6 +85,8 @@ class Notification(Resource):
             notif.displayed_once = args['displayed_once']
 
 
+
+
 class NotificationList(Resource):
     @marshal_with(notification_fields)
     def get(self):
@@ -92,11 +99,23 @@ class NotificationList(Resource):
         parser.add_argument('ttl',type=int,required=True,help='ttl cannot be blanlk!')
         parser.add_argument('notification_category',type=str,required=True,help='category cannot be blanlk!')
         args = parser.parse_args()
-        notf = NotificationModel(
+        notf = models.NotificationModel(
             message=args['message'],
             ttl=args['ttl'],
             creation_date=args['creation_date'],
             notification_category=args['notification_category']
         )
         notification_manager.insert_notification(notf)
-        return notf, HttpStatus.created_201.value
+        return notf, http_status.HttpStatus.created_201.value
+
+
+
+app = Flask(__name__)
+service = Api(app)
+
+service.add_resource(NotificationList, '/service/notifications')
+service.add_resource(Notification, '/service/notifications/<int:id>',endpoint='notification_endpoint')
+
+
+if __name__ == '__main__':
+    app.run(debug=True)
